@@ -12,43 +12,73 @@
 
 #include "libft.h"
 
-static int	is_trim(char const *s1, char const *set, int i)
+static int        is_set(char const c, char const *set)
 {
-	int	k;
+        int        i;
 
-	k = ft_strlen(set);
-	if (i == 0)
-		return (k);
-	if (s1[i + k] != '\0')
-		return (0);
-	return (k);
+        i = 0;
+        while (set[i])
+        {
+                if (set[i] == c)
+                        return (1);
+                i++;
+        }
+        return (0);
 }
 
-char	*ft_strtrim(char const *s1, char const *set)
+static int        count_set(char const *s1, char const *set)
 {
-	char	*tab;
-	size_t	i;
-	size_t	j;
-	size_t	k;
+        int                i;
+        size_t        t;
+        int                in_words;
 
-	i = 0;
-	k = 0;
-	tab = malloc (ft_strlen(s1) * sizeof(char) + 1);
-	if (!tab)
-		return (NULL);
-	while (s1[i])
-	{
-		j = 0;
-		while (s1[i + j] == set[j] && set[j] != '\0')
-			j++;
-		if (set[j] == '\0')
-			i += is_trim(s1, set, i);
-		tab[k] = s1[i];
-		k++;
-		i++;
-	}
-	tab[k] = '\0';
-	return (tab);
+        i = -1;
+        t = 0;
+        in_words = 0;
+        while (s1[++i])
+        {
+                if (is_set(s1[i], set) && !in_words)
+                        t++;
+                if (!is_set(s1[i], set))
+                        in_words = 1;
+        }
+        in_words = 0;
+        while (--i >= 0)
+        {
+                if (is_set(s1[i], set) && !in_words)
+                        t++;
+                if (!is_set(s1[i], set))
+                        in_words = 1;
+        }
+        if (t >= ft_strlen(s1))
+                return (ft_strlen(s1));
+        return (t);
+}
+
+char        *ft_strtrim(char const *s1, char const *set)
+{
+        int                i;
+        int                j;
+        char        *res;
+        int                stop;
+
+        i = 0;
+        stop = ft_strlen(s1) - 1;
+        j = -1;
+        res = malloc(sizeof(char) * (ft_strlen(s1) - count_set(s1, set)) + 1);
+        if (!res)
+                return (NULL);
+        while (is_set(s1[i], set) && s1[i])
+                i++;
+        while (is_set(s1[stop], set) && s1[stop])
+                stop--;
+        while (i <= stop)
+        {
+                res[++j] = s1[i];
+                i++;
+        }
+        res[j + 1] = '\0';
+        return (res);
 }
 
 // #include <stdio.h>
